@@ -13,6 +13,7 @@ Easy Python 2 clipboard management.
 ```python
 >>> clip.get()                # returns unicode or None
 u'nice meme'
+```
 
 ### clear
 ```python
