@@ -22,6 +22,14 @@ u'nice meme'
 None
 ```
 
+### self-test
+```sh
+$ python -m clip
+testing ASCII... success
+testing Unicode... success
+testing clear... success
+```
+
 License
 -------
 Do What the Fuck You Want to Public License.
