@@ -6,13 +6,13 @@ Easy Python clipboard management.
 
 ### copy to
 ```python
->>> clip.set(u'nice meme')    # accepts unicode or str
+>>> clip.set('nice meme')     # accepts unicode/str/bytes
 ```
 
 ### get from
 ```python
->>> clip.get()                # returns unicode or None
-u'nice meme'
+>>> clip.get()                # returns unicode string or None
+'nice meme'
 ```
 
 ### clear
