@@ -1,7 +1,7 @@
 clippy
 ======
-Easy Python 2 clipboard management.
------------------------------------
+Easy Python clipboard management.
+---------------------------------
 
 
 ### copy to

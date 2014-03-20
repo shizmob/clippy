@@ -11,6 +11,38 @@ import ctypes
 
 ## Utilities.
 
+py3 = sys.version_info >= (3, 0)
+
+def unicode_or_bytes(input):
+    if py3:
+        return isinstance(input, (str, bytes))
+    else:
+        return isinstance(input, (unicode, str))
+
+def to_unicode(input, encoding='ascii'):
+    if py3:
+        if isinstance(input, str):
+            return input
+        if isinstance(input, bytes):
+            return input.decode(encoding)
+    else:
+        if isinstance(input, unicode):
+            return input
+        if isinstance(input, str):
+            return unicode(input, encoding)
+
+def to_bytes(input, encoding='utf-8'):
+    if py3:
+        if isinstance(input, str):
+            return input.encode(encoding)
+        if isinstance(input, bytes):
+            return input
+    else:
+        if isinstance(input, unicode):
+            return input.encode(encoding)
+        if isinstance(input, str):
+            return input
+
 def which(name, flag=os.X_OK):
     """ Search PATH for given executable name. """
     executables = []
@@ -100,7 +132,7 @@ def win32_get():
         if contents is not None:
             # Lock data, decode data, unlock it.
             lock = kernel32.GlobalLock(contents)
-            data = unicode(ctypes.c_char_p(contents).value, WIN32_ENCODING)
+            data = to_unicode(ctypes.c_char_p(contents).value, WIN32_ENCODING)
             kernel32.GlobalUnlock(lock)
 
     user32.CloseClipboard()
@@ -110,23 +142,18 @@ def win32_set(data):
     """ Set clipboard text data. Accepts unicode or str. """
     user32, kernel32 = win32_setup()
 
-    if isinstance(data, unicode):
-        unidata = data
-        asciidata = data.encode(WIN32_ENCODING, 'ignore')
-    elif isinstance(data, str):
-        unidata = unicode(data, 'ascii')
-        asciidata = data
-    else:
-        raise TypeError('Clipboard data can only be unicode or str.')
+    if not unicode_or_bytes(input):
+        raise TypeError('Clipboard data can only be unicode strings or bytes.')
+    unidata = to_unicode(data).encode(WIN32_UNICODE_ENCODING)
+    asciidata = to_bytes(data, WIN32_ENCODING)
 
     window = user32.GetActiveWindow()
     user32.OpenClipboard(window)
     user32.EmptyClipboard()
 
     # Set UNICODETEXT.
-    uniraw = unidata.encode(WIN32_UNICODE_ENCODING)
     try:
-        win32_set_data(WIN32_CF_UNICODETEXT, uniraw)
+        win32_set_data(WIN32_CF_UNICODETEXT, unidata)
     except RuntimeError:
         pass
 
@@ -172,16 +199,13 @@ def osx_pb_get():
     data, _ = process.communicate()
     encoding = locale.getpreferredencoding()
 
-    return unicode(data, encoding) if data else None
+    return to_unicode(data, encoding) if data else None
 
 def osx_pb_set(data):
     """ Set clipboard text data. Accepts a unicode or str. """
-    if isinstance(data, unicode):
-        pass
-    elif isinstance(data, str):
-        data = unicode(data)
-    else:
+    if not unicode_or_bytes(data):
         raise TypeError('Clipboard data can only be unicode or str.')
+    data = to_unicode(data)
 
     encoding = locale.getpreferredencoding()
     raw = data.encode(encoding)
@@ -213,16 +237,13 @@ def linux_xclip_get():
         if process.returncode == 0 and raw:
             break
 
-    return unicode(raw, encoding) if raw else None
+    return to_unicode(raw, encoding) if raw else None
 
 def linux_xclip_set(data):
     """ Set clipboard text data. Accepts a unicode or str. """
-    if isinstance(data, unicode):
-        pass
-    elif isinstance(data, str):
-        data = unicode(data)
-    else:
+    if not unicode_or_bytes(data):
         raise TypeError('Clipboard data can only be unicode or str.')
+    data = to_unicode(data)
 
     encoding = locale.getpreferredencoding()
     raw = data.encode(encoding)
@@ -253,16 +274,13 @@ def linux_xsel_get():
         if process.returncode == 0 and raw:
             break
 
-    return unicode(raw, encoding) if raw else None
+    return to_unicode(raw, encoding) if raw else None
 
 def linux_xsel_set(data):
     """ Set clipboard text data. Accepts a unicode or str. """
-    if isinstance(data, unicode):
-        pass
-    elif isinstance(data, str):
-        data = unicode(data)
-    else:
+    if not unicode_or_bytes(data):
         raise TypeError('Clipboard data can only be unicode or str.')
+    data = to_unicode(data)
 
     encoding = locale.getpreferredencoding()
     raw = data.encode(encoding)
@@ -302,17 +320,17 @@ elif sys.platform.startswith('linux'):
 ## Tests.
 
 if __name__ == '__main__':
-    print 'testing ASCII...',
+    print('testing ASCII...')
     set('foo!')
     assert get() == u'foo!'
-    print 'success'
+    print('success')
 
-    print 'testing Unicode...',
+    print('testing Unicode...')
     set(u'( ≖‿≖)')
     assert get() == u'( ≖‿≖)'
-    print 'success'
+    print('success')
 
-    print 'testing clear...',
+    print('testing clear...')
     clear()
     assert get() is None
-    print 'success'
+    print('success')
