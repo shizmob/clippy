@@ -303,7 +303,7 @@ elif sys.platform == 'darwin':
         set = osx_pb_set
         clear = osx_pb_clear
     else:
-        raise RuntimeError('clip.py requires pbcopy and pbpaste.')
+        raise RuntimeError('clippy requires pbcopy and pbpaste.')
 elif sys.platform.startswith('linux'):
     if which('xclip'):
         get = linux_xclip_get
@@ -314,7 +314,9 @@ elif sys.platform.startswith('linux'):
         set = linux_xsel_set
         clear = linux_xsel_clear
     else:
-        raise RuntimeError('clip.py requires xclip or xsel.')
+        raise RuntimeError('clippy requires xclip or xsel.')
+else:
+    raise RuntimeError('clippy hasn\'t been ported to this platform ({}) yet.'.format(sys.platform))
 
 
 ## Tests.
