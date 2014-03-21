@@ -214,23 +214,23 @@ def osx_pb_set(data):
     process.communicate(raw)
 
 
-# Linux: xclip.
+# X windowing system: xclip.
 
-LINUX_X11_CLIPBOARDS = [ 'CLIPBOARD', 'PRIMARY' ]
+X_CLIPBOARDS = [ 'CLIPBOARD', 'PRIMARY' ]
 
-def linux_xclip_clear():
+def x_xclip_clear():
     """ Clear clipboard text data. """
     with open(os.devnull, 'rb') as f:
-        for clipboard in LINUX_X11_CLIPBOARDS:
+        for clipboard in X_CLIPBOARDS:
             process = subprocess.Popen([ 'xclip', '-selection', clipboard.lower(), '-i' ], stdin=f)
             process.wait()
 
-def linux_xclip_get():
+def x_xclip_get():
     """ Get clipboard text data. Return a unicode instance, or None. """
     raw = None
     encoding = locale.getpreferredencoding()
 
-    for clipboard in LINUX_X11_CLIPBOARDS:
+    for clipboard in X_CLIPBOARDS:
         process = subprocess.Popen([ 'xclip', '-selection', clipboard.lower(), '-o' ], stdout=subprocess.PIPE)
         raw, _ = process.communicate()
 
@@ -239,7 +239,7 @@ def linux_xclip_get():
 
     return to_unicode(raw, encoding) if raw else None
 
-def linux_xclip_set(data):
+def x_xclip_set(data):
     """ Set clipboard text data. Accepts a unicode or str. """
     if not unicode_or_bytes(data):
         raise TypeError('Clipboard data can only be unicode or str.')
@@ -248,26 +248,26 @@ def linux_xclip_set(data):
     encoding = locale.getpreferredencoding()
     raw = data.encode(encoding)
 
-    for clipboard in LINUX_X11_CLIPBOARDS:
+    for clipboard in X_CLIPBOARDS:
         process = subprocess.Popen([ 'xclip', '-selection', clipboard.lower(), '-i' ], stdin=subprocess.PIPE)
         process.communicate(raw)
 
 
-# Linux: xsel.
+# X windowing system: xsel.
 
-def linux_xsel_clear():
+def x_xsel_clear():
     """ Clear clipboard text data. """
     with open(os.devnull, 'rb') as f:
-        for clipboard in LINUX_X11_CLIPBOARDS:
+        for clipboard in X_CLIPBOARDS:
             process = subprocess.Popen([ 'xsel', '--' + clipboard.lower(), '-i' ], stdin=f)
             process.wait()
 
-def linux_xsel_get():
+def x_xsel_get():
     """ Get clipboard text data. Return a unicode instance, or None. """
     raw = None
     encoding = locale.getpreferredencoding()
 
-    for clipboard in LINUX_X11_CLIPBOARDS:
+    for clipboard in X_CLIPBOARDS:
         process = subprocess.Popen([ 'xsel', '--' + clipboard.lower(), ], stdout=subprocess.PIPE)
         raw, _ = process.communicate()
 
@@ -276,7 +276,7 @@ def linux_xsel_get():
 
     return to_unicode(raw, encoding) if raw else None
 
-def linux_xsel_set(data):
+def x_xsel_set(data):
     """ Set clipboard text data. Accepts a unicode or str. """
     if not unicode_or_bytes(data):
         raise TypeError('Clipboard data can only be unicode or str.')
@@ -285,7 +285,7 @@ def linux_xsel_set(data):
     encoding = locale.getpreferredencoding()
     raw = data.encode(encoding)
 
-    for clipboard in LINUX_X11_CLIPBOARDS:
+    for clipboard in X_CLIPBOARDS:
         process = subprocess.Popen([ 'xsel', '--' + clipboard.lower() ], stdin=subprocess.PIPE)
         process.communicate(raw)
 
@@ -304,17 +304,14 @@ elif sys.platform == 'darwin':
         clear = osx_pb_clear
     else:
         raise RuntimeError('clippy requires pbcopy and pbpaste.')
-elif sys.platform.startswith('linux'):
-    if which('xclip'):
-        get = linux_xclip_get
-        set = linux_xclip_set
-        clear = linux_xclip_clear
-    elif which('xsel'):
-        get = linux_xsel_get
-        set = linux_xsel_set
-        clear = linux_xsel_clear
-    else:
-        raise RuntimeError('clippy requires xclip or xsel.')
+elif which('xclip'):
+    get = x_xclip_get
+    set = x_xclip_set
+    clear = x_xclip_clear
+elif which('xsel'): 
+    get = x_xsel_get
+    set = x_xsel_set
+    clear = x_xsel_clear
 else:
     raise RuntimeError('clippy hasn\'t been ported to this platform ({}) yet.'.format(sys.platform))
 
