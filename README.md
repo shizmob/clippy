@@ -22,6 +22,12 @@ Easy Python clipboard management.
 None
 ```
 
+### supported
+```python
+>>> clip.supported()          # supports Windows, OS X and X11-based systems
+True
+```
+
 ### self-test
 ```sh
 $ python -m clip

@@ -65,6 +65,11 @@ def which(name, flag=os.X_OK):
 
     return executables
 
+def supported():
+    """ Return whether clippy supports this platform or not. """
+    return get != unknown_get and set != unknown_set and clear != unknown_clear
+
+
 
 ## OS APIs.
 
@@ -290,6 +295,17 @@ def x_xsel_set(data):
         process.communicate(raw)
 
 
+# Unknown platform. Just error.
+
+def unknown_clear():
+    raise RuntimeError('clippy hasn\'t been ported to this platform ({}) yet.'.format(sys.platform))
+def unknown_get():
+    raise RuntimeError('clippy hasn\'t been ported to this platform ({}) yet.'.format(sys.platform))
+
+def unknown_set(data):
+    raise RuntimeError('clippy hasn\'t been ported to this platform ({}) yet.'.format(sys.platform))
+
+
 
 ## Selecta!
 
@@ -297,13 +313,10 @@ if sys.platform.startswith('win') or sys.platform == 'cygwin':
     get = win32_get
     set = win32_set
     clear = win32_clear
-elif sys.platform == 'darwin':
-    if which('pbcopy') and which('pbpaste'):
-        get = osx_pb_get
-        set = osx_pb_set
-        clear = osx_pb_clear
-    else:
-        raise RuntimeError('clippy requires pbcopy and pbpaste.')
+elif sys.platform == 'darwin' and which('pbcopy') and which('pbpaste'):
+    get = osx_pb_get
+    set = osx_pb_set
+    clear = osx_pb_clear
 elif which('xclip'):
     get = x_xclip_get
     set = x_xclip_set
@@ -313,7 +326,9 @@ elif which('xsel'):
     set = x_xsel_set
     clear = x_xsel_clear
 else:
-    raise RuntimeError('clippy hasn\'t been ported to this platform ({}) yet.'.format(sys.platform))
+    get = unknown_get
+    set = unknown_set
+    clear = unknown_clear
 
 
 ## Tests.
