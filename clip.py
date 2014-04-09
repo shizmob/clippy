@@ -168,7 +168,7 @@ def win32_set(data):
     except RuntimeError:
         pass
 
-    win32.CloseClipboard()
+    user32.CloseClipboard()
 
 def win32_set_data(type, data):
     """ Set clipboard data for specific type from data. """
