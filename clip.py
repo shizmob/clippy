@@ -147,7 +147,7 @@ def win32_set(data):
     """ Set clipboard text data. Accepts unicode or str. """
     user32, kernel32 = win32_setup()
 
-    if not unicode_or_bytes(input):
+    if not unicode_or_bytes(data):
         raise TypeError('Clipboard data can only be unicode strings or bytes.')
     unidata = to_unicode(data).encode(WIN32_UNICODE_ENCODING)
     asciidata = to_bytes(data, WIN32_ENCODING)
