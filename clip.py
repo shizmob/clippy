@@ -152,13 +152,6 @@ def win32_set(data):
     unidata = to_unicode(data).encode(WIN32_UNICODE_ENCODING)
     asciidata = to_bytes(data, WIN32_ENCODING)
 
-    # Allow just using \n as newlines. Normalize to \n first and then convert everything to \r\n.
-    unidata = unidata.replace(to_bytes('\r\n', WIN32_UNICODE_ENCODING), to_bytes('\n', WIN32_UNICODE_ENCODING))
-    unidata = unidata.replace(to_bytes('\n', WIN32_UNICODE_ENCODING), to_bytes('\r\n', WIN32_UNICODE_ENCODING))
-    asciidata = asciidata.replace(to_bytes('\r\n', WIN32_ENCODING), to_bytes('\n', WIN32_ENCODING))
-    asciidata = asciidata.replace(to_bytes('\n', WIN32_ENCODING), to_bytes('\r\n', WIN32_ENCODING))
-
-    # Initialize clipboard.
     window = user32.GetActiveWindow()
     user32.OpenClipboard(window)
     user32.EmptyClipboard()
